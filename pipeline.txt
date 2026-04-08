@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Replace with your actual DockerHub username if different
+        DOCKER_IMAGE = "harshavardhandwaraka/java-app:latest"
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Ensure this URL matches your GitHub repository
+                git branch: 'main', url: 'https://github.com/harshavardhan-git-acc/new.git'
+            }
+        }
+        
+        stage('Build & Test with Maven') {
+            steps {
+                // Running 'package' automatically runs all your JUnit test cases
+                bat 'mvn clean package'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                bat "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+        
+        stage('Push to DockerHub') {
+            steps {
+                // This requires you to have 'dockerhub-creds' set up in Jenkins Credentials
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'harshavardhandwaraka', passwordVariable: 'shFNJD@123')]) {
+                    bat "docker login -u harshavardhandwaraka -p shFNJD@123"
+                    bat "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'CI/CD Pipeline execution finished.'
+        }
+        success {
+            echo 'CI/CD Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the Maven test logs or Docker build logs.'
+        }
+    }
+}
