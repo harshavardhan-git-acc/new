@@ -5,7 +5,8 @@ COPY . .
 RUN mvn clean package
 
 # Stage 2: Create the runtime image
-FROM openjdk:17-jdk-slim
+# Changed from openjdk:17-jdk-slim to eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/simple-java-app-1.0.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
